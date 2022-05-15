@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import time
 import scipy.spatial as sp
 import imageio
-
+import os
 
 def generate_points_xy0(N, pdf, contrast=0.0):
     H, W = pdf.shape
@@ -65,16 +65,23 @@ def generate_points_xy(N, pdf, contrast=0.0):
     return out
 
 
-def paint_delaunay(img, points_xy, show=False):
+def paint_delaunay(img, points_xy, height=None, show=False):
     tic = time.time()
+    H, W = img.shape[:2]
+    if height is None:
+        height = H
+    width = int(round(W*height/H))
 
-    tri = sp.Delaunay(points_xy)
-    frame = np.zeros_like(img)
+    points_xy_scaled = points_xy * [width/W, height/H]
+
+    tri = sp.Delaunay(points_xy_scaled)
+    frame = np.zeros(shape=(height, width), dtype=img.dtype)
     for s in tri.simplices:
+        tri_vertices_scaled = points_xy_scaled[s].astype(int)
         tri_vertices = points_xy[s].astype(int)
         p_xy = np.mean(tri_vertices, axis=0).astype(int)
         color = np.squeeze(img[p_xy[1], p_xy[0]]).tolist()
-        cv.fillPoly(frame, [tri_vertices], color)
+        cv.fillPoly(frame, [tri_vertices_scaled], color)
 
     print("delaunay:", time.time()-tic)
 
@@ -84,7 +91,7 @@ def paint_delaunay(img, points_xy, show=False):
     return frame
 
 
-def compute_magic(img3):
+def compute_magic(img3, height=None):
     frame_mono = []
     Ns = [20, 5000, 200] # hls
     ctr = [0.2, 1, -10]
@@ -93,7 +100,7 @@ def compute_magic(img3):
         pdf = ut.compute_gradient(img)
 
         pts_xy = generate_points_xy(Ns[channel], pdf, contrast=ctr[channel])
-        frame_ch = paint_delaunay(img, pts_xy)
+        frame_ch = paint_delaunay(img, pts_xy, height)
         frame_ch.shape += (1,)
         frame_mono.append(frame_ch)
 
@@ -102,11 +109,14 @@ def compute_magic(img3):
 
 
 def main():
-    # img = cv.imread("../images/baboon_512x512.png")
-    img_bgr = cv.imread("../images/vermeer_758x640.jpg")
+    H_dst = 3840
+    folder = "../images"
+    filename = "vermeer_758x640.jpg"
+    # filename = "baboon_512x512.png"
+    filepath = os.path.join(folder, filename)
+    img_bgr = cv.imread(filepath)
     img_bgr = ut.resize(img_bgr, new_height=512)
     H, W = img_bgr.shape[:2]
-
     img_g = cv.cvtColor(img_bgr, cv.COLOR_BGR2GRAY)
     img_hls = ut.cvtBRG_to_HLScube(img_bgr)
 
@@ -115,19 +125,25 @@ def main():
     # fourcc = cv.VideoWriter_fourcc(*'MJPG')  # Be sure to use lower case
     # video = cv.VideoWriter('out/video_mp4v.avi', fourcc, 6, (W, H))
     img_list = []
-
-
-    for k in range(10):
-        frame = compute_magic(img_hls)
+    for k in range(16):
+        frame = compute_magic(img_hls, H_dst)
+        frame = ut.cvtHLScube_to_BGR(frame)
+        frame = cv.GaussianBlur(frame, (5, 5), 2, 2)
         img_list.append(frame)
         # video.write(frame)
-        cv.imshow("frame", frame)
-        cv.waitKey(1)
+        # cv.imshow("frame", frame)
+        # cv.waitKey(0)
 
-    img_list = [ut.cvtHLScube_to_BGR(hls) for hls in img_list]
-    img_list = [cv.cvtColor(bgr, code=cv.COLOR_BGR2RGB) for bgr in img_list]
+    dst_folder = "out"
+    if True:
+        for i in range(len(img_list)):
+            dst_filename = ut.insert_text_before_file_extension(os.path.join(dst_folder, filename), f"_{i}")
+            dst_filename = '.'.join(dst_filename.split('.')[:-1]) + ".png"
+            cv.imwrite(dst_filename, img_list[i])
+    else:
+        img_list = [cv.cvtColor(bgr, code=cv.COLOR_BGR2RGB) for bgr in img_list]
+        imageio.mimsave("out/vermeer_758x640.gif", img_list, fps=10)
 
-    imageio.mimsave("out/vermeer_758x640.gif", img_list, fps=10)
     # N = len(pts_xy)
     # print(N)
     # xs, ys = list(zip(*pts_xy))

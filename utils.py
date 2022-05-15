@@ -46,6 +46,11 @@ def pth(*args):
     out = os.path.join(".", out)
     return out
 
+def insert_text_before_file_extension(filename, text):
+    spl = filename.split(".")
+    name = '.'.join(spl[:-1])
+    ext = spl[-1]
+    return f"{name}{text}.{ext}"
 
 def export_to_png(name, data):
     folder = "gallery"
