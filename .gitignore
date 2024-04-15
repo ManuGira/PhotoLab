@@ -1,4 +1,6 @@
 ﻿.idea
+.venv
 __pycache__
-out/*
-wpap/out
+./*/out
+
+scripts/wpap/out

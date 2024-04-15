@@ -1,5 +1,6 @@
 import utils as ut
-import cv2 as cv
+import cv2
+import tk4cv2 as tcv2
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -81,13 +82,13 @@ def paint_delaunay(img, points_xy, height=None, show=False):
         tri_vertices = points_xy[s].astype(int)
         p_xy = np.mean(tri_vertices, axis=0).astype(int)
         color = np.squeeze(img[p_xy[1], p_xy[0]]).tolist()
-        cv.fillPoly(frame, [tri_vertices_scaled], color)
+        cv2.fillPoly(frame, [tri_vertices_scaled], color)
 
     print("delaunay:", time.time()-tic)
 
     if show:
-        cv.imshow("paint_delaunay", frame)
-        cv.waitKey(0)
+        cv2.imshow("paint_delaunay", frame)
+        cv2.waitKey(0)
     return frame
 
 
@@ -100,13 +101,46 @@ def compute_magic(img3, height=None):
         pdf = ut.compute_gradient(img)
 
         pts_xy = generate_points_xy(Ns[channel], pdf, contrast=ctr[channel])
-        frame_ch = paint_delaunay(img, pts_xy, height)
+        frame_ch = paint_delaunay(img, pts_xy, height, True)
         frame_ch.shape += (1,)
         frame_mono.append(frame_ch)
 
     frame = np.concatenate((frame_mono), axis=2)
     return frame
 
+def main_superflux():
+    import superflux as sf
+
+    def cvtBRG_to_HLScube(img_bgr):
+        res = cvtBRG_to_HLScube(img_bgr)
+        return {"res": res}
+
+
+    H_dst = 3840
+    folder = "../images"
+    filename = "vermeer_758x640.jpg"
+    # filename = "baboon_512x512.png"
+    filepath = os.path.join(folder, filename)
+    img_bgr = cv2.imread(filepath)
+    img_bgr = ut.resize(img_bgr, new_height=512)
+    H, W = img_bgr.shape[:2]
+    img_g = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+    img_hls = ut.cvtBRG_to_HLScube(img_bgr)
+
+    GRAYSCALE = sf.Node(cvtBRG_to_HLScube, "res")
+    BGR2HLS = sf.Node(cvtBRG_to_HLScube, "res")
+
+
+    V2 = sf.Value(v2)
+    V5 = sf.Value(v5)
+    Mul = sf.Node(multiply, ["res"])
+    Sub = sf.Node(subtract, ["res"])
+
+    V2("res") >> Mul["lhs"]
+    V5("res") >> Mul["rhs"]
+
+    Mul("res") >> Sub["lhs"]
+    V2("res") >> Sub["rhs"]
 
 def main():
     H_dst = 3840
@@ -114,10 +148,10 @@ def main():
     filename = "vermeer_758x640.jpg"
     # filename = "baboon_512x512.png"
     filepath = os.path.join(folder, filename)
-    img_bgr = cv.imread(filepath)
+    img_bgr = cv2.imread(filepath)
     img_bgr = ut.resize(img_bgr, new_height=512)
     H, W = img_bgr.shape[:2]
-    img_g = cv.cvtColor(img_bgr, cv.COLOR_BGR2GRAY)
+    img_g = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
     img_hls = ut.cvtBRG_to_HLScube(img_bgr)
 
     # Define the codec and create VideoWriter object
@@ -128,7 +162,7 @@ def main():
     for k in range(16):
         frame = compute_magic(img_hls, H_dst)
         frame = ut.cvtHLScube_to_BGR(frame)
-        frame = cv.GaussianBlur(frame, (5, 5), 2, 2)
+        frame = cv2.GaussianBlur(frame, (5, 5), 2, 2)
         img_list.append(frame)
         # video.write(frame)
         # cv.imshow("frame", frame)
@@ -139,9 +173,9 @@ def main():
         for i in range(len(img_list)):
             dst_filename = ut.insert_text_before_file_extension(os.path.join(dst_folder, filename), f"_{i}")
             dst_filename = '.'.join(dst_filename.split('.')[:-1]) + ".png"
-            cv.imwrite(dst_filename, img_list[i])
+            cv2.imwrite(dst_filename, img_list[i])
     else:
-        img_list = [cv.cvtColor(bgr, code=cv.COLOR_BGR2RGB) for bgr in img_list]
+        img_list = [cv2.cvtColor(bgr, code=cv2.COLOR_BGR2RGB) for bgr in img_list]
         imageio.mimsave("out/vermeer_758x640.gif", img_list, fps=10)
 
     # N = len(pts_xy)

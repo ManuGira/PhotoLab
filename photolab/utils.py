@@ -13,7 +13,7 @@ def color_hex2rgb(hexa):
 
 def cvtBRG_to_HLScube(bgr):
     hls = cv.cvtColor(bgr, cv.COLOR_BGR2HLS)
-    hls = hls.astype(np.float)
+    hls = hls.astype(float)
     hls[:, :, 0] /= 180
     hls[:, :, 1] /= 255
     hls[:, :, 2] /= 255
