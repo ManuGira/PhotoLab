@@ -1,5 +1,5 @@
 import cv2
-import utils as ut
+import photolab.utils as ut
 
 KEY_1 = 49
 KEY_2 = 50

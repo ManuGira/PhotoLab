@@ -1,6 +1,5 @@
-import utils as ut
+from photolab import utils as ut
 import cv2
-import tk4cv2 as tcv2
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -87,8 +86,9 @@ def paint_delaunay(img, points_xy, height=None, show=False):
     print("delaunay:", time.time()-tic)
 
     if show:
-        cv2.imshow("paint_delaunay", frame)
-        cv2.waitKey(0)
+        frame_u8 = (np.clip(frame, 0, 1) * 255).astype(np.uint8)
+        cv2.imshow("paint_delaunay", frame_u8)
+        cv2.waitKeyEx(0)
     return frame
 
 
@@ -101,7 +101,7 @@ def compute_magic(img3, height=None):
         pdf = ut.compute_gradient(img)
 
         pts_xy = generate_points_xy(Ns[channel], pdf, contrast=ctr[channel])
-        frame_ch = paint_delaunay(img, pts_xy, height, True)
+        frame_ch = paint_delaunay(img, pts_xy, height)
         frame_ch.shape += (1,)
         frame_mono.append(frame_ch)
 
@@ -144,11 +144,13 @@ def main_superflux():
 
 def main():
     H_dst = 3840
-    folder = "../images"
+    folder = "../../images"
     filename = "vermeer_758x640.jpg"
     # filename = "baboon_512x512.png"
     filepath = os.path.join(folder, filename)
     img_bgr = cv2.imread(filepath)
+    if img_bgr is None:
+        raise FileNotFoundError(filepath)
     img_bgr = ut.resize(img_bgr, new_height=512)
     H, W = img_bgr.shape[:2]
     img_g = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
@@ -169,21 +171,23 @@ def main():
         # cv.waitKey(0)
 
     dst_folder = "out"
-    if True:
-        for i in range(len(img_list)):
-            dst_filename = ut.insert_text_before_file_extension(os.path.join(dst_folder, filename), f"_{i}")
-            dst_filename = '.'.join(dst_filename.split('.')[:-1]) + ".png"
-            cv2.imwrite(dst_filename, img_list[i])
-    else:
-        img_list = [cv2.cvtColor(bgr, code=cv2.COLOR_BGR2RGB) for bgr in img_list]
-        imageio.mimsave("out/vermeer_758x640.gif", img_list, fps=10)
+    try:
+        os.mkdir(dst_folder)
+    except:
+        pass
 
-    # N = len(pts_xy)
-    # print(N)
-    # xs, ys = list(zip(*pts_xy))
+    print(f"Save all images in {os.path.abspath(dst_folder)}")
+    for i in range(len(img_list)):
+        dst_filename = ut.insert_text_before_file_extension(os.path.join(dst_folder, filename), f"_{i}")
+        dst_filename = '.'.join(dst_filename.split('.')[:-1]) + ".png"
+        cv2.imwrite(dst_filename, img_list[i])
 
-    # plt.scatter(xs, -ys, marker=".")
-    # plt.show()
+    img_list = [cv2.cvtColor(bgr, code=cv2.COLOR_BGR2RGB) for bgr in img_list]
+    dst_filename_gif = filename[:filename.rfind(".")]
+    dst_filename_gif = f"{dst_folder}/{dst_filename_gif}.gif"
+    print(f"Create a gif with all images: {os.path.abspath(dst_filename_gif)}")
+    imageio.mimsave(dst_filename_gif, img_list, fps=10)
+
 
 
 if __name__ == '__main__':
