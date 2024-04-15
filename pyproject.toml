@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "photolab"
+version = "0.1.0"
+description = ""
+authors = ["Emmanuel Girardin <emmanuel.girardin@outlook.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+guibbon = "^0.1.5"
+scipy = "^1.13.0"
+matplotlib = "^3.8.4"
+imageio = "^2.34.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
