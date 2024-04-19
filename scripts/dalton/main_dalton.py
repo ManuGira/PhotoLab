@@ -10,8 +10,9 @@ class DaltonApp:
     @dataclasses.dataclass()
     class Config:
         filename: str = ""
-        color_filter = cf.ColorFilter.NONE
-        strength = 1
+        color_filter_1 = cf.ColorFilter.NONE
+        color_filter_2 = cf.ColorFilter.NONE
+        # strength = 1
 
     def __init__(self):
         self.win = gbn.create_window("Dalton")
@@ -26,10 +27,12 @@ class DaltonApp:
             cf.ColorFilter.SIMULATE_PROTANOPIA,
             cf.ColorFilter.SIMULATE_DEUTERANOPIA,
             cf.ColorFilter.SIMULATE_TRITANOPIA,
+            cf.ColorFilter.FIX_DEUTERANOPIA,
         ]
-        
-        self.win.create_radio_buttons("filter 1", [str(f).split(".")[-1] for f in self.color_filter_list], self.on_change_color_filter)
-        self.win.create_slider("strength", np.linspace(0, 1, 31), self.on_change_strength, initial_index=30)
+
+        self.win.create_radio_buttons("filter 1", [str(f).split(".")[-1] for f in self.color_filter_list], self.on_change_color_filter_1)
+        self.win.create_radio_buttons("filter 2", [str(f).split(".")[-1] for f in self.color_filter_list], self.on_change_color_filter_2)
+        # self.win.create_slider("strength", np.linspace(0, 1, 31), self.on_change_strength, initial_index=30)
         self.need_update = True
 
     def run(self):
@@ -43,19 +46,24 @@ class DaltonApp:
 
     def update(self):
         img = cv2.imread(self.img_folder + self.config.filename)
-        return cf.apply_color_filter(img, self.config.color_filter)
+        img = cf.apply_color_filter(img, self.config.color_filter_1)
+        return cf.apply_color_filter(img, self.config.color_filter_2)
 
     def on_change_filename(self, ind, val):
         self.config.filename = val
         self.need_update = True
 
-    def on_change_color_filter(self, ind, val):
-        self.config.color_filter = self.color_filter_list[ind]
+    def on_change_color_filter_1(self, ind, val):
+        self.config.color_filter_1 = self.color_filter_list[ind]
         self.need_update = True
 
-    def on_change_strength(self, ind, val):
-        self.config.strength = val
+    def on_change_color_filter_2(self, ind, val):
+        self.config.color_filter_2 = self.color_filter_list[ind]
         self.need_update = True
+
+    # def on_change_strength(self, ind, val):
+    #     self.config.strength = val
+    #     self.need_update = True
 
 
 def main():
