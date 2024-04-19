@@ -20,7 +20,7 @@ class ColorSpaceApp:
         self.win = gbn.create_window("Color Spaces")
         self.config = ColorSpaceApp.Config()
 
-        self.color_space_list = [cs.ColorSpace.BGR, cs.ColorSpace.RGB, cs.ColorSpace.XYZ, cs.ColorSpace.HLS, cs.ColorSpace.HSV]
+        self.color_space_list = [cs.ColorSpace.BGR, cs.ColorSpace.RGB, cs.ColorSpace.HLS, cs.ColorSpace.HSV, cs.ColorSpace.XYZ, cs.ColorSpace.LAB]
         self.win.create_radio_buttons("Color Space", [str(space).split(".")[-1] for space in self.color_space_list], self.on_change_color_space)
 
         self.slider_c0 = self.win.create_slider("00", range(255), self.on_change_channel0, initial_index=self.config.channel0)
@@ -47,7 +47,6 @@ class ColorSpaceApp:
             self.win.imshow(self.result)
             self.win.waitKeyEx(1)
 
-
     def update(self):
 
         c0 = self.config.channel0
@@ -68,9 +67,10 @@ class ColorSpaceApp:
         img[N:0:-1, N:] = img_12
 
         img = cs.ColorImage(img, self.config.color_space).to(cs.ColorSpace.BGR)
+        # img = cs.simulate_deuteranopia(img)
 
         # color square
-        img[N + N // 4:N + (3 * N) // 4, N // 4:(3 * N) // 4, :] = np.array([[[c0, c1, c2]]])
+        # img[N + N // 4:N + (3 * N) // 4, N // 4:(3 * N) // 4, :] = np.array([[[c0, c1, c2]]])
 
         # cursors
         img[:, N + c1, :] = 255

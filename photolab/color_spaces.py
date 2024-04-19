@@ -3,14 +3,6 @@ import cv2
 import enum
 import numba
 
-# https://en.wikipedia.org/wiki/LMS_color_space
-HuntPointerEstevezMatrix = np.array([
-    [0.38971, 0.68898, -0.07868],  # L
-    [-0.22981, 1.18340, 0.04641],  # M
-    [0, 0, 1],  # S
-])
-HuntPointerEstevezMatrix /= np.sum(HuntPointerEstevezMatrix, axis=1)
-
 
 def apply_color_matrix(img, mat3x3):
     h, w = img.shape[:2]
@@ -36,19 +28,6 @@ def RGB_to_BGR_u8(rgb):
     return bgr
 
 
-def BGR_to_XYZ_u8(bgr):
-    assert bgr.dtype == np.uint8
-    res = cv2.cvtColor(bgr, cv2.COLOR_BGR2XYZ)
-    assert res.dtype == np.uint8
-    return res
-
-def XYZ_to_BGR_u8(xyz):
-    assert xyz.dtype == np.uint8
-    bgr = cv2.cvtColor(xyz, cv2.COLOR_XYZ2BGR)
-    assert bgr.dtype == np.uint8
-    return bgr
-
-
 def BGR_to_HLScube_u8(bgr):
     assert bgr.dtype == np.uint8
     hls = cv2.cvtColor(bgr, cv2.COLOR_BGR2HLS)
@@ -59,10 +38,11 @@ def BGR_to_HLScube_u8(bgr):
 
 def HLScube_to_BGR_u8(hls):
     assert hls.dtype == np.uint8
-    hls[:, :, 0] = (hls[:, :, 0].astype(np.float16)*(180/255)).astype(np.uint8)
+    hls[:, :, 0] = (hls[:, :, 0].astype(np.float16) * (180 / 255)).astype(np.uint8)
     bgr = cv2.cvtColor(hls, cv2.COLOR_HLS2BGR)
     assert bgr.dtype == np.uint8
     return bgr
+
 
 def BRG_to_HSVcube_u8(bgr):
     assert bgr.dtype == np.uint8
@@ -71,10 +51,39 @@ def BRG_to_HSVcube_u8(bgr):
     assert hsv.dtype == np.uint8
     return hsv
 
+
 def HSVcube_to_BGR_u8(hsv):
     assert hsv.dtype == np.uint8
-    hsv[:, :, 0] = (hsv[:, :, 0].astype(np.float16)*(180/255)).astype(np.uint8)
+    hsv[:, :, 0] = (hsv[:, :, 0].astype(np.float16) * (180 / 255)).astype(np.uint8)
     bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+    assert bgr.dtype == np.uint8
+    return bgr
+
+
+def BGR_to_XYZ_u8(bgr):
+    assert bgr.dtype == np.uint8
+    res = cv2.cvtColor(bgr, cv2.COLOR_BGR2XYZ)
+    assert res.dtype == np.uint8
+    return res
+
+
+def XYZ_to_BGR_u8(xyz):
+    assert xyz.dtype == np.uint8
+    bgr = cv2.cvtColor(xyz, cv2.COLOR_XYZ2BGR)
+    assert bgr.dtype == np.uint8
+    return bgr
+
+
+def BGR_to_LAB_u8(bgr):
+    assert bgr.dtype == np.uint8
+    lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
+    assert lab.dtype == np.uint8
+    return lab
+
+
+def LAB_to_BGR_u8(lab):
+    assert lab.dtype == np.uint8
+    bgr = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
     assert bgr.dtype == np.uint8
     return bgr
 
@@ -86,7 +95,6 @@ class ColorSpace(enum.IntEnum):
     HSV = enum.auto()
     XYZ = enum.auto()
     LAB = enum.auto()
-    LMS = enum.auto()
 
 
 CHANNELS = {
@@ -96,8 +104,8 @@ CHANNELS = {
     ColorSpace.HSV: ("Hue", "Saturation", "Value"),
     ColorSpace.XYZ: ("X", "Y", "Z"),
     ColorSpace.LAB: ("L", "A", "B"),
-    ColorSpace.LMS: ("Long", "Medium", "Short"),
 }
+
 
 def convert_to_BGR_u8(img, from_space: ColorSpace):
     match from_space:
@@ -111,6 +119,8 @@ def convert_to_BGR_u8(img, from_space: ColorSpace):
             return HLScube_to_BGR_u8(img)
         case ColorSpace.HSV:
             return HSVcube_to_BGR_u8(img)
+        case ColorSpace.LAB:
+            return LAB_to_BGR_u8(img)
 
 
 def convert_from_BGR_u8(bgr, to_space: ColorSpace):
@@ -125,6 +135,8 @@ def convert_from_BGR_u8(bgr, to_space: ColorSpace):
             return BGR_to_HLScube_u8(bgr)
         case ColorSpace.HSV:
             return BRG_to_HSVcube_u8(bgr)
+        case ColorSpace.LAB:
+            return BGR_to_LAB_u8(bgr)
 
 
 class ColorImage:
@@ -166,21 +178,6 @@ class LUTConverter:
     def apply_lut(self, img):
         return self.lut[img[:, :, 0], img[:, :, 1], img[:, :, 2]]
 
-
-#
-# 
-
-# 
-# 
-# def BGR_to_LMS_u8(bgr):
-#     xyz = cv2.cvtColor(bgr, cv2.COLOR_BGR2XYZ).astype(float) / 255
-#     return apply_color_matrix(xyz, HuntPointerEstevezMatrix)
-# 
-# 
-# def LMS_to_BGR_u8(lms):
-#     xyz = apply_color_matrix(lms, np.linalg.inv(HuntPointerEstevezMatrix)) * 255
-#     return cv2.cvtColor(xyz.astype(np.uint8), cv2.COLOR_XYZ2BGR)
-#
 
 def main():
     import time
