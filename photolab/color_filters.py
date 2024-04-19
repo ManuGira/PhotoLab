@@ -23,6 +23,12 @@ LMS_Protanopia_matrix = np.array([
     [0, 0, 1],
 ])
 BGR_Protanopia_matrix = np.linalg.inv(BGR_to_LMS_matrix) @ LMS_Protanopia_matrix @ BGR_to_LMS_matrix
+Protanopia_shift_matrix = np.array([
+    [0, 0, 0],
+    [0.7, 1, 0],
+    [0.7, 0, 1],
+])
+Protanopia_fix_matrix = np.identity(3) + Protanopia_shift_matrix @ (np.identity(3) - BGR_Protanopia_matrix)
 
 LMS_Deuteranopia_matrix = np.array([
     [1, 0, 0],
@@ -42,8 +48,13 @@ LMS_Tritanopia_matrix = np.array([
     [0, 1, 0],
     [-0.395913, 0.801109, 0],
 ])
-
 BGR_Tritanopia_matrix = np.linalg.inv(BGR_to_LMS_matrix) @ LMS_Tritanopia_matrix @ BGR_to_LMS_matrix
+Tritanopia_shift_matrix = np.array([
+    [1, 0, 0.7],
+    [0, 1, 0.7],
+    [0, 0, 0],
+])
+Tritanopia_fix_matrix = np.identity(3) + Tritanopia_shift_matrix @ (np.identity(3) - BGR_Tritanopia_matrix)
 
 
 class ColorFilter(enum.IntEnum):
@@ -52,7 +63,9 @@ class ColorFilter(enum.IntEnum):
     SIMULATE_PROTANOPIA = enum.auto()
     SIMULATE_DEUTERANOPIA = enum.auto()
     SIMULATE_TRITANOPIA = enum.auto()
+    FIX_PROTANOPIA = enum.auto()
     FIX_DEUTERANOPIA = enum.auto()
+    FIX_TRITANOPIA = enum.auto()
 
 
 COLOR_FILTER_MATRIX = {
@@ -61,7 +74,9 @@ COLOR_FILTER_MATRIX = {
     ColorFilter.SIMULATE_PROTANOPIA: BGR_Protanopia_matrix,
     ColorFilter.SIMULATE_DEUTERANOPIA: BGR_Deuteranopia_matrix,
     ColorFilter.SIMULATE_TRITANOPIA: BGR_Tritanopia_matrix,
+    ColorFilter.FIX_PROTANOPIA: Protanopia_fix_matrix,
     ColorFilter.FIX_DEUTERANOPIA: Deuteranopia_fix_matrix,
+    ColorFilter.FIX_TRITANOPIA: Tritanopia_fix_matrix,
 }
 
 

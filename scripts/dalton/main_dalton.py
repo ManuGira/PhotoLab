@@ -21,17 +21,23 @@ class DaltonApp:
         self.config = DaltonApp.Config(images[0])
         self.win.create_radio_buttons("filename", images, self.on_change_filename)
 
-        self.color_filter_list = [
+        self.color_filter_1_list = [
+            cf.ColorFilter.NONE,
+            cf.ColorFilter.FIX_PROTANOPIA,
+            cf.ColorFilter.FIX_DEUTERANOPIA,
+            cf.ColorFilter.FIX_TRITANOPIA,
+        ]
+
+        self.color_filter_2_list = [
             cf.ColorFilter.NONE,
             cf.ColorFilter.GRAYSCALE,
             cf.ColorFilter.SIMULATE_PROTANOPIA,
             cf.ColorFilter.SIMULATE_DEUTERANOPIA,
             cf.ColorFilter.SIMULATE_TRITANOPIA,
-            cf.ColorFilter.FIX_DEUTERANOPIA,
         ]
 
-        self.win.create_radio_buttons("filter 1", [str(f).split(".")[-1] for f in self.color_filter_list], self.on_change_color_filter_1)
-        self.win.create_radio_buttons("filter 2", [str(f).split(".")[-1] for f in self.color_filter_list], self.on_change_color_filter_2)
+        self.win.create_radio_buttons("filter 1", [str(f).split(".")[-1] for f in self.color_filter_1_list], self.on_change_color_filter_1)
+        self.win.create_radio_buttons("filter 2", [str(f).split(".")[-1] for f in self.color_filter_2_list], self.on_change_color_filter_2)
         # self.win.create_slider("strength", np.linspace(0, 1, 31), self.on_change_strength, initial_index=30)
         self.need_update = True
 
@@ -54,11 +60,11 @@ class DaltonApp:
         self.need_update = True
 
     def on_change_color_filter_1(self, ind, val):
-        self.config.color_filter_1 = self.color_filter_list[ind]
+        self.config.color_filter_1 = self.color_filter_1_list[ind]
         self.need_update = True
 
     def on_change_color_filter_2(self, ind, val):
-        self.config.color_filter_2 = self.color_filter_list[ind]
+        self.config.color_filter_2 = self.color_filter_2_list[ind]
         self.need_update = True
 
     # def on_change_strength(self, ind, val):
