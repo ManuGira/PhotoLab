@@ -11,23 +11,6 @@ def color_hex2rgb(hexa):
     return r, g, b
 
 
-def cvtBRG_to_HLScube(bgr):
-    hls = cv.cvtColor(bgr, cv.COLOR_BGR2HLS)
-    hls = hls.astype(float)
-    hls[:, :, 0] /= 180
-    hls[:, :, 1] /= 255
-    hls[:, :, 2] /= 255
-    return hls
-
-
-def cvtHLScube_to_BGR(hls):
-    hls[:, :, 0] *= 180
-    hls[:, :, 1] *= 255
-    hls[:, :, 2] *= 255
-    hls = hls.astype(np.uint8)
-    bgr = cv.cvtColor(hls, cv.COLOR_HLS2BGR)
-    return bgr
-
 
 def sec_to_hms(sec):
     h = int(sec / 60 / 60)

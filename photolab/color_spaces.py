@@ -49,7 +49,7 @@ def XYZ_to_BGR_u8(xyz):
     return bgr
 
 
-def BRG_to_HLScube_u8(bgr):
+def BGR_to_HLScube_u8(bgr):
     assert bgr.dtype == np.uint8
     hls = cv2.cvtColor(bgr, cv2.COLOR_BGR2HLS)
     hls[:, :, 0] = (hls[:, :, 0].astype(np.float16) * (255 / 180)).astype(np.uint8)
@@ -122,7 +122,7 @@ def convert_from_BGR_u8(bgr, to_space: ColorSpace):
         case ColorSpace.XYZ:
             return BGR_to_XYZ_u8(bgr)
         case ColorSpace.HLS:
-            return BRG_to_HLScube_u8(bgr)
+            return BGR_to_HLScube_u8(bgr)
         case ColorSpace.HSV:
             return BRG_to_HSVcube_u8(bgr)
 
