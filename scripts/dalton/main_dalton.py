@@ -20,7 +20,14 @@ class DaltonApp:
         self.config = DaltonApp.Config(images[0])
         self.win.create_radio_buttons("filename", images, self.on_change_filename)
 
-        self.color_filter_list = [cf.ColorFilter.NONE, cf.ColorFilter.GRAYSCALE, cf.ColorFilter.SIMULATE_DEUTERANOPIA]
+        self.color_filter_list = [
+            cf.ColorFilter.NONE,
+            cf.ColorFilter.GRAYSCALE,
+            cf.ColorFilter.SIMULATE_PROTANOPIA,
+            cf.ColorFilter.SIMULATE_DEUTERANOPIA,
+            cf.ColorFilter.SIMULATE_TRITANOPIA,
+        ]
+        
         self.win.create_radio_buttons("filter 1", [str(f).split(".")[-1] for f in self.color_filter_list], self.on_change_color_filter)
         self.win.create_slider("strength", np.linspace(0, 1, 31), self.on_change_strength, initial_index=30)
         self.need_update = True
