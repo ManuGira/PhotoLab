@@ -67,7 +67,6 @@ class ColorSpaceApp:
         img[N:0:-1, N:] = img_12
 
         img = cs.ColorImage(img, self.config.color_space).to(cs.ColorSpace.BGR)
-        # img = cs.simulate_deuteranopia(img)
 
         # color square
         # img[N + N // 4:N + (3 * N) // 4, N // 4:(3 * N) // 4, :] = np.array([[[c0, c1, c2]]])
