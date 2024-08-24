@@ -155,7 +155,7 @@ def main():
     img_bgr = ut.resize(img_bgr, new_height=512)
     H, W = img_bgr.shape[:2]
     img_g = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-    img_hls = cs.BGR_to_HLScube_u8(img_bgr).astype(float) / 255
+    img_hls = cs.BGR_to_HLS_u8(img_bgr).astype(float) / 255
 
     # Define the codec and create VideoWriter object
     # fourcc = cv.VideoWriter_fourcc(*'mp4v')  # Be sure to use lower case
@@ -164,7 +164,7 @@ def main():
     img_list = []
     for k in range(16):
         frame = compute_magic(img_hls, H_dst)
-        frame = cs.HLScube_to_BGR_u8((frame*255).astype(np.uint8))
+        frame = cs.HLS_to_BGR_u8((frame * 255).astype(np.uint8))
         frame = cv2.GaussianBlur(frame, (5, 5), 2, 2)
         img_list.append(frame)
         # video.write(frame)
