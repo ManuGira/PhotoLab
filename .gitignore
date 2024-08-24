@@ -4,3 +4,5 @@ __pycache__
 ./*/out
 
 scripts/wpap/out
+out
+scripts/time_taster/montage
