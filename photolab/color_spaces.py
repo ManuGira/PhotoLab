@@ -28,34 +28,30 @@ def RGB_to_BGR_u8(rgb):
     return bgr
 
 
-def BGR_to_HLScube_u8(bgr):
+def BGR_to_HLS_u8(bgr):
     assert bgr.dtype == np.uint8
-    hls = cv2.cvtColor(bgr, cv2.COLOR_BGR2HLS)
-    hls[:, :, 0] = (hls[:, :, 0].astype(np.float16) * (255 / 180)).astype(np.uint8)
+    hls = cv2.cvtColor(bgr, cv2.COLOR_BGR2HLS_FULL)
     assert hls.dtype == np.uint8
     return hls
 
 
-def HLScube_to_BGR_u8(hls):
+def HLS_to_BGR_u8(hls):
     assert hls.dtype == np.uint8
-    hls[:, :, 0] = (hls[:, :, 0].astype(np.float16) * (180 / 255)).astype(np.uint8)
-    bgr = cv2.cvtColor(hls, cv2.COLOR_HLS2BGR)
+    bgr = cv2.cvtColor(hls, cv2.COLOR_HLS2BGR_FULL)
     assert bgr.dtype == np.uint8
     return bgr
 
 
-def BRG_to_HSVcube_u8(bgr):
+def BRG_to_HSV_u8(bgr):
     assert bgr.dtype == np.uint8
-    hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
-    hsv[:, :, 0] = (hsv[:, :, 0].astype(np.float16) * (255 / 180)).astype(np.uint8)
+    hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV_FULL)
     assert hsv.dtype == np.uint8
     return hsv
 
 
-def HSVcube_to_BGR_u8(hsv):
+def HSV_to_BGR_u8(hsv):
     assert hsv.dtype == np.uint8
-    hsv[:, :, 0] = (hsv[:, :, 0].astype(np.float16) * (180 / 255)).astype(np.uint8)
-    bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+    bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR_FULL)
     assert bgr.dtype == np.uint8
     return bgr
 
@@ -116,9 +112,9 @@ def convert_to_BGR_u8(img, from_space: ColorSpace):
         case ColorSpace.XYZ:
             return XYZ_to_BGR_u8(img)
         case ColorSpace.HLS:
-            return HLScube_to_BGR_u8(img)
+            return HLS_to_BGR_u8(img)
         case ColorSpace.HSV:
-            return HSVcube_to_BGR_u8(img)
+            return HSV_to_BGR_u8(img)
         case ColorSpace.LAB:
             return LAB_to_BGR_u8(img)
 
@@ -132,9 +128,9 @@ def convert_from_BGR_u8(bgr, to_space: ColorSpace):
         case ColorSpace.XYZ:
             return BGR_to_XYZ_u8(bgr)
         case ColorSpace.HLS:
-            return BGR_to_HLScube_u8(bgr)
+            return BGR_to_HLS_u8(bgr)
         case ColorSpace.HSV:
-            return BRG_to_HSVcube_u8(bgr)
+            return BRG_to_HSV_u8(bgr)
         case ColorSpace.LAB:
             return BGR_to_LAB_u8(bgr)
 
