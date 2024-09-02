@@ -59,6 +59,7 @@ class DitherArt:
         gain: float = 0
         dither_matrix_type: str = "hamming"
         dither_matrix_size: int = 0
+        matroll: int = 0
         abberation: int = 0
 
     def __init__(self):
@@ -84,6 +85,7 @@ class DitherArt:
             "horiz",
         ], self.onchange_dithermatrixtype)
 
+        matroll_slider = win.create_slider("mat roll", range(-5, 5), self.onchange_matroll_slider, initial_index=5)
         abberation_slider = win.create_slider("abberation", range(-15, 15), self.onchange_abberation_slider, initial_index=15)
 
         win.create_button("Save", self.onclick_save)
@@ -93,6 +95,7 @@ class DitherArt:
             gain=float(gain_slider.get_values()[gain_slider.get_index()]),
             dither_matrix_size=size_slider.get_values()[size_slider.get_index()],
             dither_matrix_type=matrix_type_options.get_current_selection()[1],
+            matroll=matroll_slider.get_values()[matroll_slider.get_index()],
             abberation=abberation_slider.get_values()[abberation_slider.get_index()],
         )
 
@@ -113,6 +116,10 @@ class DitherArt:
 
     def onchange_size_slider(self, i, val):
         self.config.dither_matrix_size = val
+        self.is_update_needed = True
+
+    def onchange_matroll_slider(self, i, val):
+        self.config.matroll = val
         self.is_update_needed = True
 
     def onchange_abberation_slider(self, i, val):
@@ -139,14 +146,22 @@ class DitherArt:
             case _:
                 mat = dither_matrix.M2_classic
 
-        dither = compute_dither_art(mat, self.config.height, self.config.gain)
+        shift_b = (self.config.matroll + 1) // 2
+        shift_r = self.config.matroll // 2
+        dither_b = compute_dither_art(np.roll(mat, -shift_b, axis=1), self.config.height, self.config.gain)
+        dither_g = compute_dither_art(mat, self.config.height, self.config.gain)
+        dither_r = compute_dither_art(np.roll(mat, shift_r, axis=1), self.config.height, self.config.gain)
 
-        self.result = np.repeat(np.zeros_like(dither, shape=dither.shape + (1,)), repeats=3, axis=2)
         shift_b = (self.config.abberation + 1) // 2
         shift_r = self.config.abberation // 2
-        self.result[:, :, 0] = np.roll(dither, -shift_b, axis=1)
-        self.result[:, :, 1] = dither
-        self.result[:, :, 2] = np.roll(dither, shift_r, axis=1)
+        dither_b = np.roll(dither_b, -shift_b, axis=1)
+        dither_g = dither_g
+        dither_r = np.roll(dither_r, shift_r, axis=1)
+
+        dither_b.shape += (1,)
+        dither_g.shape += (1,)
+        dither_r.shape += (1,)
+        self.result = np.concatenate((dither_b, dither_g, dither_r), axis=2)
 
         self.is_update_needed = False
 
