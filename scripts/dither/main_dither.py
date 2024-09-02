@@ -89,6 +89,7 @@ class DitherArt:
         abberation_slider = win.create_slider("abberation", range(-15, 15), self.onchange_abberation_slider, initial_index=15)
 
         win.create_button("Save", self.onclick_save)
+        win.create_button("Open Folder", self.onclick_openfolder)
 
         self.config = self.Config(
             height=height_slider.get_values()[height_slider.get_index()],
@@ -128,6 +129,9 @@ class DitherArt:
 
     def onclick_save(self):
         easy_save(self.result, self.savename)
+
+    def onclick_openfolder(self):
+        os.startfile(os.path.dirname(self.savename))
 
     def update(self):
         match self.config.dither_matrix_type:
