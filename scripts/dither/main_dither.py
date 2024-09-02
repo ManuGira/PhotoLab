@@ -22,7 +22,6 @@ def easy_save(img, filename):
     cv2.imwrite(filename, img)
 
 
-
 def apply_dither_matrx(img, mat):
     h, w = mat.shape[:2]
     H, W = img.shape[:2]
@@ -83,6 +82,7 @@ class DitherArt:
             "vert",
             "diag",
             "horiz",
+            "square"
         ], self.onchange_dithermatrixtype)
 
         matroll_slider = win.create_slider("mat roll", range(-5, 5), self.onchange_matroll_slider, initial_index=5)
@@ -147,6 +147,8 @@ class DitherArt:
                 mat = dither_matrix.diag(N=self.config.dither_matrix_size)
             case "horiz":
                 mat = dither_matrix.horiz(N=self.config.dither_matrix_size)
+            case "square":
+                mat = dither_matrix.square(N=self.config.dither_matrix_size)
             case _:
                 mat = dither_matrix.M2_classic
 
