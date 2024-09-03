@@ -35,7 +35,7 @@ def apply_dither_matrx(img, mat):
     return result
 
 
-def compute_dither_art(dither_mat, height: int = 200, gain_db: float = 0):
+def compute_dither_art(dither_mat, height: int = 200, gain_db: float = 0, invert: bool = False):
     img = cv2.imread("../../images/david_656x457.jpg", cv2.IMREAD_GRAYSCALE)
     # img = cv2.imread("../../images/ae86_563x1000.jpg", cv2.IMREAD_GRAYSCALE)
     # img = cv2.imread("../../images/ae86_543x1000.png", cv2.IMREAD_GRAYSCALE)
@@ -44,8 +44,13 @@ def compute_dither_art(dither_mat, height: int = 200, gain_db: float = 0):
 
     img = np.clip(0, 255, img.astype(float) * 2 ** gain_db).astype(np.uint8)
 
-    n = len(dither_mat.flatten())
-    dither_mat = ((dither_mat + 1).astype(float) * 255 / (n + 1)).astype(np.uint8)
+    max_val = np.max(dither_mat.flatten())
+
+    if invert:
+        dither_mat = max_val - dither_mat
+
+    dither_mat = np.round((dither_mat + 1).astype(float) * 255 / (max_val + 1)).astype(np.uint8)
+
     img = apply_dither_matrx(img, dither_mat)
 
     return img
@@ -58,6 +63,7 @@ class DitherArt:
         gain: float = 0
         dither_matrix_type: str = "hamming"
         dither_matrix_size: int = 0
+        invert: bool = False
         matroll: int = 0
         abberation: int = 0
 
@@ -82,9 +88,11 @@ class DitherArt:
             "vert",
             "diag",
             "horiz",
-            "square"
+            "square",
+            "smiley",
         ], self.onchange_dithermatrixtype)
 
+        invert_check_button = win.create_check_button("invert", self.onchange_invert)
         matroll_slider = win.create_slider("mat roll", range(-5, 5), self.onchange_matroll_slider, initial_index=5)
         abberation_slider = win.create_slider("abberation", range(-15, 15), self.onchange_abberation_slider, initial_index=15)
 
@@ -96,6 +104,7 @@ class DitherArt:
             gain=float(gain_slider.get_values()[gain_slider.get_index()]),
             dither_matrix_size=size_slider.get_values()[size_slider.get_index()],
             dither_matrix_type=matrix_type_options.get_current_selection()[1],
+            invert=invert_check_button.get_current_value(),
             matroll=matroll_slider.get_values()[matroll_slider.get_index()],
             abberation=abberation_slider.get_values()[abberation_slider.get_index()],
         )
@@ -119,6 +128,10 @@ class DitherArt:
         self.config.dither_matrix_size = val
         self.is_update_needed = True
 
+    def onchange_invert(self, is_check: bool):
+        self.config.invert = is_check
+        self.is_update_needed = True
+
     def onchange_matroll_slider(self, i, val):
         self.config.matroll = val
         self.is_update_needed = True
@@ -134,32 +147,36 @@ class DitherArt:
         os.startfile(os.path.dirname(self.savename))
 
     def update(self):
-        match self.config.dither_matrix_type:
+        cfg = self.config
+
+        match cfg.dither_matrix_type:
             case "spiral":
-                mat = dither_matrix.spiral(N=self.config.dither_matrix_size)
+                mat = dither_matrix.spiral(N=cfg.dither_matrix_size)
             case "hamming":
-                mat = dither_matrix.hamming(N=self.config.dither_matrix_size)
+                mat = dither_matrix.hamming(N=cfg.dither_matrix_size)
             case "random":
-                mat = dither_matrix.random(N=self.config.dither_matrix_size)
+                mat = dither_matrix.random(N=cfg.dither_matrix_size)
             case "vert":
-                mat = dither_matrix.vert(N=self.config.dither_matrix_size)
+                mat = dither_matrix.vert(N=cfg.dither_matrix_size)
             case "diag":
-                mat = dither_matrix.diag(N=self.config.dither_matrix_size)
+                mat = dither_matrix.diag(N=cfg.dither_matrix_size)
             case "horiz":
-                mat = dither_matrix.horiz(N=self.config.dither_matrix_size)
+                mat = dither_matrix.horiz(N=cfg.dither_matrix_size)
             case "square":
-                mat = dither_matrix.square(N=self.config.dither_matrix_size)
+                mat = dither_matrix.square(N=cfg.dither_matrix_size)
+            case "smiley":
+                mat = dither_matrix.smiley(N=cfg.dither_matrix_size)
             case _:
                 mat = dither_matrix.M2_classic
 
-        shift_b = (self.config.matroll + 1) // 2
-        shift_r = self.config.matroll // 2
-        dither_b = compute_dither_art(np.roll(mat, -shift_b, axis=1), self.config.height, self.config.gain)
-        dither_g = compute_dither_art(mat, self.config.height, self.config.gain)
-        dither_r = compute_dither_art(np.roll(mat, shift_r, axis=1), self.config.height, self.config.gain)
+        shift_b = (cfg.matroll + 1) // 2
+        shift_r = cfg.matroll // 2
+        dither_b = compute_dither_art(np.roll(mat, -shift_b, axis=1), cfg.height, cfg.gain, cfg.invert)
+        dither_g = compute_dither_art(mat, cfg.height, cfg.gain, cfg.invert)
+        dither_r = compute_dither_art(np.roll(mat, shift_r, axis=1), cfg.height, cfg.gain, cfg.invert)
 
-        shift_b = (self.config.abberation + 1) // 2
-        shift_r = self.config.abberation // 2
+        shift_b = (cfg.abberation + 1) // 2
+        shift_r = cfg.abberation // 2
         dither_b = np.roll(dither_b, -shift_b, axis=1)
         dither_g = dither_g
         dither_r = np.roll(dither_r, shift_r, axis=1)
