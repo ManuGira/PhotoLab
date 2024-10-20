@@ -11,6 +11,8 @@ import os
 import matrix_editor_widget
 import numpy.typing as npt
 
+from photolab.utils import easy_save
+
 
 def make_alpha(img_bgr, color):
     h, w = img_bgr.shape[:2]
@@ -20,20 +22,6 @@ def make_alpha(img_bgr, color):
 
     img_bgra = np.concatenate((img_bgr, alpha), axis=2)
     return img_bgra
-
-
-def easy_save(img, filename):
-    dir = os.path.dirname(filename)
-    filename_no_ext, ext = os.path.splitext(filename)
-
-    os.makedirs(dir, exist_ok=True)
-
-    n = 1
-    while os.path.exists(filename):
-        filename = f"{filename_no_ext}-{n:03}{ext}"
-        n += 1
-
-    cv2.imwrite(filename, img)
 
 
 def apply_dither_matrx(img, mat):
