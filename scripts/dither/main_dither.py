@@ -5,6 +5,7 @@ import cv2
 import guibbon as gbn
 
 import photolab.utils
+import photolab.utils_old
 import dither_matrix
 import os
 import matrix_editor_widget

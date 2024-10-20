@@ -1,4 +1,5 @@
-from photolab import utils as ut
+import photolab.utils
+from photolab import utils_old as ut
 from photolab import color_spaces as cs
 import cv2
 import numpy as np
@@ -123,7 +124,7 @@ def main_superflux():
     # filename = "baboon_512x512.png"
     filepath = os.path.join(folder, filename)
     img_bgr = cv2.imread(filepath)
-    img_bgr = ut.resize(img_bgr, new_height=512)
+    img_bgr = photolab.utils.resize(img_bgr, new_height=512)
     H, W = img_bgr.shape[:2]
     img_g = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
     img_hls = ut.cvtBRG_to_HLScube(img_bgr)
@@ -152,7 +153,7 @@ def main():
     img_bgr = cv2.imread(filepath)
     if img_bgr is None:
         raise FileNotFoundError(filepath)
-    img_bgr = ut.resize(img_bgr, new_height=512)
+    img_bgr = photolab.utils.resize(img_bgr, new_height=512)
     H, W = img_bgr.shape[:2]
     img_g = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
     img_hls = cs.BGR_to_HLS_u8(img_bgr).astype(float) / 255

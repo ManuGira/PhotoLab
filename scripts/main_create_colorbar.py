@@ -7,8 +7,8 @@ from dash.dependencies import Input, Output
 import dash_daq as daq
 import plotly.graph_objs as go
 import numpy as np
-import utils
-from utils import pth
+import utils_old as utils
+from utils_old import pth
 # import fractal_painter
 import cv2 as cv
 import pickle

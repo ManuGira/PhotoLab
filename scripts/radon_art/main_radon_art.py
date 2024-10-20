@@ -7,6 +7,7 @@ import photolab as phl
 import scipy
 
 import photolab.utils
+import photolab.utils_old
 from photolab import math2d as m2
 import matplotlib.pyplot as plt
 

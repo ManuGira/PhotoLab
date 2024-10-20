@@ -1,5 +1,7 @@
 import cv2
-import photolab.utils as ut
+
+import photolab.utils
+import photolab.utils_old as ut
 
 KEY_1 = 49
 KEY_2 = 50
@@ -35,7 +37,7 @@ def run_round(img_list, contenders):
 def main():
     filename_list = [f"wpap/out/vermeer_758x640_{i}.png" for i in range(16)]
     img_list = [cv2.imread(filename) for filename in filename_list]
-    img_list = [ut.resize(img, 720) for img in img_list]
+    img_list = [photolab.utils.resize(img, 720) for img in img_list]
 
     cv2.namedWindow(WINNAME)
     contenders = list(range(len(img_list)))

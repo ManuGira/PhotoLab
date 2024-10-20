@@ -3,7 +3,7 @@ import enum
 import cv2
 import guibbon as gbn
 import numpy as np
-from photolab import utils as ut
+from photolab import utils_old as ut
 from photolab import color_spaces as cs
 
 
