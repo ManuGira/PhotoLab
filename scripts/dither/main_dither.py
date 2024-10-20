@@ -4,14 +4,12 @@ import cv2
 
 import guibbon as gbn
 
-import photolab.utils
-import photolab.utils_old
+import photolab.utils as phutil
 import dither_matrix
 import os
 import matrix_editor_widget
 import numpy.typing as npt
 
-from photolab.utils import easy_save
 
 
 def make_alpha(img_bgr, color):
@@ -255,7 +253,7 @@ class DitherArt:
 
     def onclick_save(self):
         res = make_alpha(self.result, [0, 0, 0])
-        easy_save(res, self.savename)
+        phutil.easy_save(res, self.savename)
 
     def onclick_openfolder(self):
         os.startfile(os.path.dirname(self.savename))
