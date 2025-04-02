@@ -12,25 +12,23 @@ from numba import njit, vectorize
 import time
 
 
+@njit()
+def accumulate_x(img, mod):
+    M, N = img.shape
+    for i in range(M):
+        for j in range(1, N):
+            pix = img[i, j]
+            pix_left = img[i, j - 1]
+            img[i, j] = (pix + pix_left) % mod
+
 class ModShift:
     @staticmethod
     def warmup():
         print("Start warmup")
         img12 = np.array([[0, 0]], dtype=np.uint8)
         img14 = np.array([[0, 0, 0, 0]], dtype=np.uint8)
-        ModShift.accumulate_x(img12, 1)
         ModShift.apply_pattern(1, 2, 2, img12, img14)
         print("warmup done")
-
-    @staticmethod
-    @njit()
-    def accumulate_x(img, mod):
-        M, N = img.shape
-        for i in range(M):
-            for j in range(1, N):
-                pix = img[i, j]
-                pix_left = img[i, j - 1]
-                img[i, j] = (pix + pix_left) % mod
 
     @staticmethod
     @njit()
@@ -50,9 +48,8 @@ class ModShift:
         shift_map = cv2.resize(img, None, None, fx=1 / pattern_width, fy=1, interpolation=cv2.INTER_AREA)
         M, N = shift_map.shape
 
-
         # we need: white -> no shift, black -> big shift. So we must invert the image
-        shift_map = 255-shift_map
+        shift_map = 255 - shift_map
 
         # randomize first row to break vertical lines
         half = pattern_width // 2
@@ -61,10 +58,10 @@ class ModShift:
         shift_map[:, 0] = random_row
 
         # convert to int. Shift map correspond to amount of shift (roll) that needs to be applied on the pattern [0, 0, 0, 1, 1, 1] comparing to neighbor pattern on the left
-        shift_map = (shift_map.astype(float) * pattern_width / 255).astype(np.uint8)
+        shift_map = (shift_map.astype(float) * half / 255).astype(np.uint8)
 
         # the accumulate func propagates each shift to neighbor pixel on the right. The shift is not absolute and not anymore relative to neighbor
-        ModShift.accumulate_x(shift_map, pattern_width)
+        accumulate_x(shift_map, pattern_width)
 
         HEIGHT = M
         WIDTH = N * pattern_width
