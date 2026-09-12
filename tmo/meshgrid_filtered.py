@@ -42,7 +42,7 @@ fig, ax = plt.subplots(figsize=(10, 10))
 
 # Draw circles for filtered points
 for x_val, y_val in zip(filtered_x, filtered_y):
-    radius = x_val * y_val
+    radius = 1 / (x_val * y_val)
     circle = plt.Circle((x_val, y_val), radius, fill=False, edgecolor='red', alpha=0.6, linewidth=1.5)
     ax.add_patch(circle)
 
