@@ -57,11 +57,10 @@ for k in range(-12, 13):
 # Plot the scatter points
 ax.scatter(transformed_x, transformed_y, s=50, color='red', alpha=0.9, zorder=5, label='Transformed points')
 
-# Draw circles for transformed points (green color, small fixed radius in new coordinates)
-for tx_val, ty_val in zip(transformed_x, transformed_y):
-    radius = 0.3  # Small fixed radius in transformed space for visibility
-    circle = plt.Circle((tx_val, ty_val), radius, fill=False, edgecolor='green', alpha=0.8, linewidth=2)
-    ax.add_patch(circle)
+# Add labels for each point
+for i, (tx_val, ty_val, x_val, y_val) in enumerate(zip(transformed_x, transformed_y, filtered_x, filtered_y)):
+    label = f"{y_val}/{x_val}"
+    ax.text(tx_val + 0.3, ty_val + 0.2, label, fontsize=8, alpha=0.7, ha='left')
 
 ax.set_xlabel("12*log₂(y/x)", fontsize=12)
 ax.set_ylabel("log₂(1/(x*y))", fontsize=12)
