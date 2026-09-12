@@ -37,31 +37,35 @@ for i in range(N):
         filtered_x.append(x_val)
         filtered_y.append(y_val)
 
-# Transform coordinates: (x, y) -> (12*log2(y/x), 1/(x*y))
+# Transform coordinates: (x, y) -> (12*log2(y/x), log2(1/(x*y)))
 transformed_x = []
 transformed_y = []
 
 for x_val, y_val in zip(filtered_x, filtered_y):
     new_x = 12 * log2(y_val / x_val)
-    new_y = 1 / (x_val * y_val)
+    new_y = log2(1 / (x_val * y_val))
     transformed_x.append(new_x)
     transformed_y.append(new_y)
 
 # Create plot
-fig, ax = plt.subplots(figsize=(12, 12))
+fig, ax = plt.subplots(figsize=(14, 10))
+
+# Add vertical lines x=k for k in range(-12, 13)
+for k in range(-12, 13):
+    ax.axvline(x=k, color='gray', linewidth=0.5, alpha=0.3, linestyle='-')
 
 # Plot the scatter points
 ax.scatter(transformed_x, transformed_y, s=50, color='red', alpha=0.9, zorder=5, label='Transformed points')
 
-# Draw circles for transformed points (green color, same radius in new coordinates)
+# Draw circles for transformed points (green color, small fixed radius in new coordinates)
 for tx_val, ty_val in zip(transformed_x, transformed_y):
-    radius = 0.05  # Small fixed radius in transformed space for visibility
+    radius = 0.3  # Small fixed radius in transformed space for visibility
     circle = plt.Circle((tx_val, ty_val), radius, fill=False, edgecolor='green', alpha=0.8, linewidth=2)
     ax.add_patch(circle)
 
 ax.set_xlabel("12*log₂(y/x)", fontsize=12)
-ax.set_ylabel("1/(x*y)", fontsize=12)
-ax.set_title(f"Transformed Meshgrid: {len(filtered_x)} filtered points\nTransformation: (x,y) → (12*log₂(y/x), 1/(x*y))", fontsize=14)
+ax.set_ylabel("log₂(1/(x*y))", fontsize=12)
+ax.set_title(f"Transformed Meshgrid: {len(filtered_x)} filtered points\nTransformation: (x,y) → (12*log₂(y/x), log₂(1/(x*y)))", fontsize=14)
 ax.grid(True, alpha=0.3)
 ax.legend(loc='upper right', fontsize=10)
 
