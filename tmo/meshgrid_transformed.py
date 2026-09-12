@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from math import gcd, log2
 
 # Number of points along each axis
-N = 10
+N = 20
 
 # Create coordinates: i, j in range(N)
 x = np.arange(N)
@@ -66,7 +66,7 @@ ax.set_xlabel("12*log₂(y/x)", fontsize=12)
 ax.set_ylabel("log₂(1/(x*y))", fontsize=12)
 ax.set_title(f"Transformed Meshgrid: {len(filtered_x)} filtered points\nTransformation: (x,y) → (12*log₂(y/x), log₂(1/(x*y)))", fontsize=14)
 ax.grid(True, alpha=0.3)
-ax.legend(loc='upper right', fontsize=10)
+ax.legend(loc='upper center', fontsize=10)
 
 # Save to file
 output_path = 'meshgrid_transformed.png'

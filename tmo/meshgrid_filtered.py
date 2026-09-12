@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from math import gcd
 
 # Number of points along each axis
-N = 10
+N = 20
 
 # Create coordinates: i, j in range(N)
 x = np.arange(N)
@@ -76,7 +76,7 @@ ax.set_ylabel("y (j)", fontsize=12)
 ax.set_title(f"Filtered Meshgrid: Circles with radius = 1/(x*y)\n({len(filtered_x)} points out of {N*N})", fontsize=14)
 ax.set_aspect('equal')
 ax.grid(True, alpha=0.3)
-ax.legend(loc='upper right', fontsize=8)
+ax.legend(loc='upper center', fontsize=8)
 
 # Save to file
 output_path = 'meshgrid_filtered.png'
