@@ -37,17 +37,25 @@ for i in range(N):
         filtered_x.append(x_val)
         filtered_y.append(y_val)
 
-# Plot the filtered points
-plt.figure(figsize=(8, 8))
-plt.scatter(filtered_x, filtered_y, s=100, alpha=0.6, color='red')
-plt.scatter(X, Y, s=30, alpha=0.2, color='gray', label='All points')
+# Plot circles at filtered points with radius = x*y
+fig, ax = plt.subplots(figsize=(10, 10))
 
-plt.xlabel("x (i)", fontsize=12)
-plt.ylabel("y (j)", fontsize=12)
-plt.title(f"Filtered Meshgrid: Coprimes with 0.5 ≤ y/x ≤ 2\n({len(filtered_x)} points out of {N*N})", fontsize=14)
-plt.axis("equal")
-plt.grid(True, alpha=0.3)
-plt.legend()
+# Draw circles for filtered points
+for x_val, y_val in zip(filtered_x, filtered_y):
+    radius = x_val * y_val
+    circle = plt.Circle((x_val, y_val), radius, fill=False, edgecolor='red', alpha=0.6, linewidth=1.5)
+    ax.add_patch(circle)
+
+# Plot the points themselves
+ax.scatter(filtered_x, filtered_y, s=50, color='red', alpha=0.8, zorder=5, label='Filtered points')
+ax.scatter(X, Y, s=20, alpha=0.2, color='gray', label='All points')
+
+ax.set_xlabel("x (i)", fontsize=12)
+ax.set_ylabel("y (j)", fontsize=12)
+ax.set_title(f"Filtered Meshgrid: Circles with radius = x*y\n({len(filtered_x)} points out of {N*N})", fontsize=14)
+ax.set_aspect('equal')
+ax.grid(True, alpha=0.3)
+ax.legend()
 
 # Save to file
 output_path = 'meshgrid_filtered.png'
