@@ -40,16 +40,16 @@ for i in range(N):
 # Create plot
 fig, ax = plt.subplots(figsize=(12, 12))
 
-# Add curves y = 1/(x*k) for k in range(1, 10)
-x_range = np.linspace(0.1, 10, 1000)
-colors_curves = plt.cm.Blues(np.linspace(0.3, 0.9, 9))
-for k in range(1, 10):
-    y_curve = 1 / (x_range * k)
-    ax.plot(x_range, y_curve, color=colors_curves[k-1], alpha=0.5, linewidth=1, label=f'y = 1/(x*{k})')
-
 # Add axis lines (x=0 and y=0)
 ax.axhline(y=0, color='black', linewidth=0.8, alpha=0.7)
 ax.axvline(x=0, color='black', linewidth=0.8, alpha=0.7)
+
+# Add curves y = k/x for k in range(1, 10)
+x_range = np.linspace(0.1, 10, 1000)
+colors_curves = plt.cm.Blues(np.linspace(0.3, 0.9, 9))
+for k in range(1, 10):
+    y_curve = k / x_range
+    ax.plot(x_range, y_curve, color=colors_curves[k-1], alpha=0.5, linewidth=1, label=f'y = {k}/x')
 
 # Add reference lines
 x_line = np.linspace(0, 10, 100)
@@ -57,15 +57,15 @@ ax.plot(x_line, x_line, 'g--', linewidth=1.5, alpha=0.6, label='y = x')
 ax.plot(x_line, 2*x_line, 'b--', linewidth=1.5, alpha=0.6, label='y = 2x')
 ax.plot(x_line, x_line/2, 'r--', linewidth=1.5, alpha=0.6, label='y = x/2')
 
-# Draw circles for filtered points
-for x_val, y_val in zip(filtered_x, filtered_y):
-    radius = 1 / (x_val * y_val)
-    circle = plt.Circle((x_val, y_val), radius, fill=False, edgecolor='red', alpha=0.8, linewidth=2)
-    ax.add_patch(circle)
-
-# Plot the points themselves
+# Plot the scatter points
 ax.scatter(filtered_x, filtered_y, s=50, color='red', alpha=0.9, zorder=5, label='Filtered points')
 ax.scatter(X, Y, s=20, alpha=0.2, color='gray', label='All points')
+
+# Draw circles for filtered points (green color)
+for x_val, y_val in zip(filtered_x, filtered_y):
+    radius = 1 / (x_val * y_val)
+    circle = plt.Circle((x_val, y_val), radius, fill=False, edgecolor='green', alpha=0.8, linewidth=2)
+    ax.add_patch(circle)
 
 # Set viewport cropped around points
 ax.set_xlim(0, 10)
