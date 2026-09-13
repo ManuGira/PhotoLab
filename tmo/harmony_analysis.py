@@ -1,6 +1,10 @@
 import numpy as np
 from math import gcd, log2
 
+def format_ratio(ratio):
+    """Convert ratio to 12*log2(ratio) format with 2 decimal places"""
+    return f"{12 * log2(ratio):.2f}"
+
 # Number of points along each axis
 N = 20
 
@@ -92,7 +96,7 @@ with open(output_file, 'w') as f:
     f.write("=" * 80 + "\n\n")
     
     for i, p in enumerate(points, 1):
-        f.write(f"{i:3d}. ({p['x']:2d}, {p['y']:2d}) - harmony: {p['harmony']:8.4f}, ratio: {p['ratio']:.6f}\n")
+        f.write(f"{i:3d}. ({p['x']:2d}, {p['y']:2d}) - harmony: {p['harmony']:8.4f}, 12*log2(ratio): {format_ratio(p['ratio']):>7s}\n")
     
     f.write("\n" + "=" * 80 + "\n")
     f.write(f"FREQUENCY PRODUCT ANALYSIS\n")
@@ -111,11 +115,11 @@ with open(output_file, 'w') as f:
     
     for i, match in enumerate(sorted_mylist, 1):
         matched_pt = match['matched_point']
-        matched_pt_str = f"({matched_pt['x']}, {matched_pt['y']}) ratio={matched_pt['ratio']:.6f}" if matched_pt else "N/A"
+        matched_pt_str = f"({matched_pt['x']}, {matched_pt['y']}) 12*log2(r)={format_ratio(matched_pt['ratio']):>7s}" if matched_pt else "N/A"
         
-        f.write(f"{i:4d}. {match['product']:10.6f} | ")
-        f.write(f"p1=({int(match['p1'][0])}, {int(match['p1'][1])}) ratio={match['ratio_p1']:.6f} | ")
-        f.write(f"p2=({int(match['p2'][0])}, {int(match['p2'][1])}) ratio={match['ratio_p2']:.6f} | ")
+        f.write(f"{i:4d}. product={match['product']:10.6f} | ")
+        f.write(f"p1=({int(match['p1'][0])}, {int(match['p1'][1])}) 12*log2(r)={format_ratio(match['ratio_p1']):>7s} | ")
+        f.write(f"p2=({int(match['p2'][0])}, {int(match['p2'][1])}) 12*log2(r)={format_ratio(match['ratio_p2']):>7s} | ")
         f.write(f"matched={matched_pt_str}\n")
     
     f.write("\n" + "=" * 80 + "\n")
