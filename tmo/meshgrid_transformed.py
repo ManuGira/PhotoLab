@@ -55,18 +55,17 @@ for k in range(-12, 13):
     ax.axvline(x=k, color='gray', linewidth=0.5, alpha=0.3, linestyle='-')
 
 # Plot the scatter points
-ax.scatter(transformed_x, transformed_y, s=50, color='red', alpha=0.9, zorder=5, label='Transformed points')
+ax.scatter(transformed_x, transformed_y, s=50, color='red', alpha=0.9, zorder=5)
 
 # Add labels for each point
 for i, (tx_val, ty_val, x_val, y_val) in enumerate(zip(transformed_x, transformed_y, filtered_x, filtered_y)):
     label = f"{y_val}/{x_val}"
-    ax.text(tx_val + 0.3, ty_val + 0.2, label, fontsize=8, alpha=0.7, ha='left')
+    ax.text(tx_val, ty_val + 0.06, label, fontsize=8, alpha=0.7, ha='center')
 
 ax.set_xlabel("12*log₂(y/x)", fontsize=12)
 ax.set_ylabel("log₂(1/(x*y))", fontsize=12)
 ax.set_title(f"Transformed Meshgrid: {len(filtered_x)} filtered points\nTransformation: (x,y) → (12*log₂(y/x), log₂(1/(x*y)))", fontsize=14)
 ax.grid(True, alpha=0.3)
-ax.legend(loc='upper center', fontsize=10)
 
 # Save to file
 output_path = 'meshgrid_transformed.png'
