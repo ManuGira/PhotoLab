@@ -13,11 +13,12 @@ X, Y = np.meshgrid(x, y)
 
 # Filter: keep only points where x and y are coprimes and y/x in [0.5, 2]
 points = []
+frequency_map = {}  # Map: formatted frequency -> point
 
 for i in range(N):
     for j in range(N):
-        x_val = X[j, i]
-        y_val = Y[j, i]
+        x_val = int(X[j, i])
+        y_val = int(Y[j, i])
         
         # Skip if x is 0
         if x_val == 0:
@@ -37,7 +38,13 @@ for i in range(N):
         
         # Filter: keep only points where harmony > -7
         if harmony > -7:
-            points.append({'x': x_val, 'y': y_val, 'harmony': harmony, 'ratio': ratio})
+            point_dict = {'x': x_val, 'y': y_val, 'harmony': harmony, 'ratio': ratio}
+            points.append(point_dict)
+            
+            # Create frequency map with formatted key
+            freq_key = f"{ratio:.5f}"
+            if freq_key not in frequency_map:
+                frequency_map[freq_key] = point_dict
 
 # Calculate frequencies
 freqs = [p['y']/p['x'] for p in points]
@@ -53,13 +60,18 @@ for p1 in points:
         # Check if f matches any frequency in freqs with tolerance
         for freq in freqs:
             if abs(f - freq) < threshold:
+                # Find the matched point using the frequency map
+                freq_key = f"{freq:.5f}"
+                matched_point = frequency_map.get(freq_key)
+                
                 mylist.append({
                     'product': f,
                     'freq_match': freq,
                     'p1': (p1['x'], p1['y']),
                     'p2': (p2['x'], p2['y']),
                     'ratio_p1': p1['ratio'],
-                    'ratio_p2': p2['ratio']
+                    'ratio_p2': p2['ratio'],
+                    'matched_point': matched_point
                 })
                 break
 
@@ -91,16 +103,20 @@ with open(output_file, 'w') as f:
     f.write(f"Total matches found: {len(mylist)}\n\n")
     
     f.write("MATCHING PRODUCTS (sorted by product value):\n")
-    f.write("Format: product_value (matched_frequency) | p1=(x1,y1) ratio=r1 | p2=(x2,y2) ratio=r2\n")
+    f.write("Format: product_value | p1=(x1,y1) ratio=r1 | p2=(x2,y2) ratio=r2 | matched_point=(x,y) ratio=r\n")
     f.write("-" * 80 + "\n\n")
     
     # Sort by product value
     sorted_mylist = sorted(mylist, key=lambda x: x['product'])
     
     for i, match in enumerate(sorted_mylist, 1):
-        f.write(f"{i:4d}. {match['product']:10.6f} (matched to {match['freq_match']:.6f}) | ")
-        f.write(f"p1={match['p1']} ratio={match['ratio_p1']:.6f} | ")
-        f.write(f"p2={match['p2']} ratio={match['ratio_p2']:.6f}\n")
+        matched_pt = match['matched_point']
+        matched_pt_str = f"({matched_pt['x']}, {matched_pt['y']}) ratio={matched_pt['ratio']:.6f}" if matched_pt else "N/A"
+        
+        f.write(f"{i:4d}. {match['product']:10.6f} | ")
+        f.write(f"p1=({int(match['p1'][0])}, {int(match['p1'][1])}) ratio={match['ratio_p1']:.6f} | ")
+        f.write(f"p2=({int(match['p2'][0])}, {int(match['p2'][1])}) ratio={match['ratio_p2']:.6f} | ")
+        f.write(f"matched={matched_pt_str}\n")
     
     f.write("\n" + "=" * 80 + "\n")
     f.write("SUMMARY STATISTICS\n")
